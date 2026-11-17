@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-17T22:45:00+09:00",
+  "updated_at": "2026-11-18T00:20:00+09:00",
   "site": {
     "title": "공주시 정보 · 실시간 핫딜 시세",
     "tagline": "당근 카페 「공주시 정보」 온라인핫딜",
@@ -14,47 +14,58 @@
       "brand": "동아제약 공식",
       "badge": "딜 지수 87점",
       "shipping": "무료배송",
-      "effective_price": 72760,
+      "deadline": "네이버 오늘끝딜 11/18 11:00 마감",
+      "list_price": 129000,
+      "effective_price": 61345,
       "effective_label": "멤버십 적립 시 체감가",
-      "max_discount_price": 85600,
-      "reward_note": "적립 최대 12,840원",
+      "max_discount_price": 81990,
+      "max_discount_label": "멤버십 쿠폰가",
+      "reward_note": "적립 최대 20,645원",
       "avg_30d": 94900,
+      "avg_label": "상시 판매가",
       "official_low": 83000,
       "danawa_low": 76850,
-      "discount_vs_avg_pct": 23,
-      "updated_at": "2026-11-17",
-      "source_note": "공식몰·다나와 시세 대조 (2026.11.17 확인)",
+      "discount_pct": 52,
+      "discount_ref": "정가",
+      "updated_at": "2026-11-18",
+      "source_note": "공식몰·다나와 시세 대조 (2026.11.18 00:09 확인)",
       "affiliate_url": "https://naver.me/GahEVOuY",
       "reasons": [
-        "공식몰 30일 평균(94,900원) 대비 체감 약 23% 저렴",
-        "다나와 단품 최저(76,850원)보다 싸고 바이탈M 7일분 증정"
+        "정가 129,000원 대비 52% 저렴 (멤버십 적립 반영 체감가)",
+        "상시 판매가(94,900원)보다 33,555원 저렴",
+        "다나와 단품 최저(76,850원)보다 15,505원 저렴",
+        "바이탈M 7일분 + 쇼핑백 증정, 무료배송"
       ],
       "comparison_points": [
         {
-          "label": "30일 평균(공식몰)",
-          "price": 94900
+          "label": "정가",
+          "price": 129000
         },
         {
-          "label": "기존 최저(공식몰)",
-          "price": 83000
+          "label": "상시 판매가(공식몰)",
+          "price": 94900
         },
         {
           "label": "다나와 최저(병행 단품)",
           "price": 76850
         },
         {
-          "label": "오늘 특가(최대할인)",
-          "price": 85600
+          "label": "멤버십 쿠폰가",
+          "price": 81990
         },
         {
           "label": "오늘 체감가(적립 포함)",
-          "price": 72760
+          "price": 61345
         }
       ],
       "history": [
         {
           "date": "2026-11-17",
           "price": 72760
+        },
+        {
+          "date": "2026-11-18",
+          "price": 61345
         }
       ],
       "affiliate_label": "네이버 브랜드 커넥트"
@@ -66,7 +77,7 @@
       "badge": "딜 지수 87점",
       "shipping": "",
       "effective_price": 417660,
-      "effective_label": "라이브 한정가",
+      "effective_label": "라이브 한정가 (11/17 기준)",
       "max_discount_price": 417660,
       "reward_note": "",
       "avg_30d": null,
@@ -78,7 +89,8 @@
       "affiliate_url": "",
       "reasons": [
         "다나와 단품 최저(442,160원)보다 24,500원 저렴",
-        "라이브 한정 구성: 스탠드 + 45mm 라운드브러시 증정"
+        "라이브 한정 구성: 스탠드 + 45mm 라운드브러시 증정",
+        "라이브 방송 한정 가격이라 방송이 끝나면 판매가 바뀔 수 있어요"
       ],
       "comparison_points": [
         {

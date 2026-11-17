@@ -82,6 +82,8 @@
   .chip { font-size: 11px; font-weight: 700; letter-spacing: -.2px; padding: 4px 8px; border-radius: 7px; white-space: nowrap; }
   .chip--brand { background: var(--brand-bg); color: var(--brand); }
   .chip--ship { background: var(--ship-bg); color: var(--ship); }
+  .chip--dead { background: var(--hot-bg); color: var(--hot); }
+  .card__dead { margin: 7px 0 0; font-size: 11.5px; font-weight: 800; color: var(--hot); letter-spacing: -.2px; }
   .card__title {
     margin: 0 0 10px; font-size: 14.5px; font-weight: 600; letter-spacing: -.3px; line-height: 1.45;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -119,6 +121,7 @@
   }
   .pricebox__sub { margin-top: 6px; font-size: 11.5px; color: #7d6450; white-space: nowrap; }
   .pricebox__sub--muted { color: #a08a76; margin-top: 1px; font-size: 10.5px; }
+  .pricebox__was { margin-top: 3px; font-size: 11.5px; color: #a08a76; text-decoration: line-through; }
 
   .sumgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 20px; }
   .sum { background: #f6f8fb; border: 1px solid #e9edf3; border-radius: 12px; padding: 10px 7px; text-align: center; min-width: 0; }
@@ -228,6 +231,16 @@
   function dots(date) { return String(date || '').replace(/-/g, '.'); }
   function shortDate(date) { var s = String(date || ''); return s.length >= 10 ? s.slice(5).replace('-', '.') : s; }
 
+  function discountText(deal) {
+    if (deal.discount_pct !== null && deal.discount_pct !== undefined) {
+      return (deal.discount_ref || '정가') + ' 대비 -' + deal.discount_pct + '%';
+    }
+    if (deal.discount_vs_avg_pct !== null && deal.discount_vs_avg_pct !== undefined) {
+      return '30일 평균 대비 -' + deal.discount_vs_avg_pct + '%';
+    }
+    return '';
+  }
+
   function site() { return (state.data && state.data.site) || {}; }
   function siteTitle() { return site().title || '실시간 핫딜 시세'; }
 
@@ -279,12 +292,14 @@
         html += '<p class="card__title">' + esc(deal.title) + '</p>';
         html += '<div class="card__row">';
         html += '<span class="card__price">' + (isFinite(price) ? comma(price) : '—') + '<span>원</span></span>';
-        if (deal.discount_vs_avg_pct !== null && deal.discount_vs_avg_pct !== undefined) {
-          html += '<span class="card__off">30일 평균 대비 -' + esc(deal.discount_vs_avg_pct) + '%</span>';
+        var dt = discountText(deal);
+        if (dt) {
+          html += '<span class="card__off">' + esc(dt) + '</span>';
         } else if (deal.danawa_low !== null && deal.danawa_low !== undefined) {
           html += '<span class="card__off card__off--muted">타사 최저 ' + won(deal.danawa_low) + '</span>';
         }
         html += '</div>';
+        if (deal.deadline) html += '<p class="card__dead">' + esc(deal.deadline) + '</p>';
         html += '<div class="card__foot"><span>' + esc(deal.effective_label || '') + '</span><span class="card__go">시세 보기 →</span></div>';
         html += '</a></li>';
       });
@@ -318,10 +333,11 @@
     if (deal.badge) html += '<span class="badge">' + esc(deal.badge) + '</span>';
     html += '</div></header>';
 
-    if (deal.brand || deal.shipping) {
+    if (deal.brand || deal.shipping || deal.deadline) {
       html += '<div class="chips">';
       if (deal.brand) html += '<span class="chip chip--brand">' + esc(deal.brand) + '</span>';
       if (deal.shipping) html += '<span class="chip chip--ship">' + esc(deal.shipping) + '</span>';
+      if (deal.deadline) html += '<span class="chip chip--dead">' + esc(deal.deadline) + '</span>';
       html += '</div>';
     }
 
@@ -332,17 +348,19 @@
     html += '<div class="pricebox__left">';
     html += '<div class="pricebox__label">' + esc(deal.effective_label || '오늘 체감가') + '</div>';
     html += '<div class="pricebox__price">' + comma(deal.effective_price) + '<span>원</span></div>';
+    if (deal.list_price) html += '<div class="pricebox__was">정가 ' + won(deal.list_price) + '</div>';
     html += '</div>';
     html += '<div class="pricebox__right">';
-    if (deal.discount_vs_avg_pct !== null && deal.discount_vs_avg_pct !== undefined) {
-      html += '<span class="pill">평균 대비 -' + esc(deal.discount_vs_avg_pct) + '%</span>';
+    var dtDetail = discountText(deal);
+    if (dtDetail) {
+      html += '<span class="pill">' + esc(dtDetail) + '</span>';
     } else if (deal.danawa_low && Number(deal.danawa_low) > Number(deal.effective_price)) {
       var vsOther = Math.round((1 - Number(deal.effective_price) / Number(deal.danawa_low)) * 100);
       if (vsOther > 0) html += '<span class="pill">타사 최저 대비 -' + vsOther + '%</span>';
     }
     var maxP = (deal.max_discount_price === null || deal.max_discount_price === undefined) ? null : Number(deal.max_discount_price);
     if (maxP !== null && maxP > Number(deal.effective_price)) {
-      html += '<div class="pricebox__sub">최대할인가 ' + won(maxP) + '</div>';
+      html += '<div class="pricebox__sub">' + esc(deal.max_discount_label || '최대할인가') + ' ' + won(maxP) + '</div>';
     }
     if (deal.reward_note) {
       html += '<div class="pricebox__sub pricebox__sub--muted">(' + esc(deal.reward_note) + ')</div>';
@@ -351,7 +369,7 @@
 
     /* three summary cards */
     var sums = [
-      { k: '30일 평균', v: deal.avg_30d },
+      { k: deal.avg_label || '30일 평균', v: deal.avg_30d },
       { k: '공식 역대최저', v: deal.official_low },
       { k: '타사 단품최저', v: deal.danawa_low }
     ];
