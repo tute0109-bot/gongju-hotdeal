@@ -477,14 +477,15 @@
     var max = Math.max.apply(null, vals);
     var pad = Math.max((max - min) * 0.22, max * 0.03);
     return {
-      min: Math.max(0, Math.floor((min - pad) / 1000) * 1000),
-      max: Math.ceil((max + pad) / 1000) * 1000,
+      min: Math.max(0, Math.floor((min - pad) / 5000) * 5000),
+      max: Math.ceil((max + pad) / 5000) * 5000,
       beginAtZero: false,
       grace: '0%',
       grid: { color: '#eef1f6', drawTicks: false },
       border: { display: false },
       ticks: {
         color: '#9aa4b0', font: { size: 10, family: FONT }, maxTicksLimit: 5, padding: 7,
+        includeBounds: false,
         callback: function (v) { return axisMoney(v); }
       }
     };
