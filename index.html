@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>공주시 정보 · 실시간 핫딜 시세</title>
+<meta name="description" content="당근 카페 「공주시 정보」에서 소개한 오늘의 핫딜을 30일 평균·역대 최저가와 비교해 보여 주는 시세 페이지입니다.">
+<meta name="theme-color" content="#eef2f7">
+<meta property="og:title" content="공주시 정보 · 실시간 핫딜 시세">
+<meta property="og:description" content="오늘의 핫딜을 30일 평균·역대 최저가와 비교해 한눈에. 가격 추이 그래프와 구매 링크까지.">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #eef2f7;
+    --ink: #191f28;
+    --ink2: #3f4a57;
+    --muted: #8b95a1;
+    --line: #e8ecf2;
+    --brand: #1f8a52;
+    --brand-bg: #e7f5ec;
+    --ship: #2f6fd0;
+    --ship-bg: #e9f1fd;
+    --hot: #f04452;
+    --hot-bg: #ffe9ed;
+    --price: #f4590f;
+    --price-bg: #fff7ea;
+    --price-line: #f4cfa0;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+  }
+  .app {
+    max-width: 460px;
+    margin: 0 auto;
+    background: #fff;
+    min-height: 100vh;
+    padding: 18px 16px calc(30px + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 520px) {
+    .app { margin: 22px auto; border-radius: 26px; min-height: 0; box-shadow: 0 14px 44px rgba(20, 30, 50, .1); padding-bottom: 24px; }
+  }
+
+  /* header */
+  .top { border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 16px; }
+  .top__row { display: flex; align-items: center; gap: 8px; }
+  .top__title {
+    margin: 0; flex: 1 1 auto; min-width: 0;
+    font-size: clamp(13px, 3.7vw, 15.5px); font-weight: 700; letter-spacing: -.3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .top__sub { margin: 7px 0 0; font-size: 12px; color: var(--muted); }
+  .top__sub b { color: var(--ink2); }
+  .back {
+    flex: none; width: 26px; height: 26px; margin-left: -6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #566270; text-decoration: none;
+  }
+  .badge {
+    flex: none; background: var(--hot-bg); color: var(--hot);
+    font-size: 11.5px; font-weight: 800; letter-spacing: -.2px;
+    padding: 5px 10px; border-radius: 999px; white-space: nowrap;
+  }
+
+  /* list */
+  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .card {
+    display: block; text-decoration: none; color: inherit;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 15px 12px; background: #fff;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .card:active { transform: scale(.985); box-shadow: 0 2px 10px rgba(20, 30, 50, .06); }
+  .card__top { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; }
+  .card__top .badge { margin-left: auto; }
+  .chip { font-size: 11px; font-weight: 700; letter-spacing: -.2px; padding: 4px 8px; border-radius: 7px; white-space: nowrap; }
+  .chip--brand { background: var(--brand-bg); color: var(--brand); }
+  .chip--ship { background: var(--ship-bg); color: var(--ship); }
+  .card__title {
+    margin: 0 0 10px; font-size: 14.5px; font-weight: 600; letter-spacing: -.3px; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card__row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .card__price { font-size: 21px; font-weight: 800; letter-spacing: -.7px; }
+  .card__price span { font-size: 12.5px; font-weight: 700; margin-left: 1px; letter-spacing: 0; }
+  .card__off { font-size: 12px; font-weight: 800; color: var(--hot); letter-spacing: -.2px; }
+  .card__off--muted { color: var(--muted); font-weight: 700; }
+  .card__foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line);
+    font-size: 11.5px; color: var(--muted);
+  }
+  .card__go { color: var(--brand); font-weight: 800; white-space: nowrap; }
+
+  /* detail */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .pname { margin: 0 0 14px; font-size: 19.5px; font-weight: 800; letter-spacing: -.6px; line-height: 1.4; word-break: keep-all; }
+
+  .pricebox {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--price-bg); border: 1px solid var(--price-line);
+    border-radius: var(--radius); padding: 13px 15px 14px; margin-bottom: 13px;
+  }
+  .pricebox__left { min-width: 0; }
+  .pricebox__label { font-size: 12px; font-weight: 800; color: #8a6134; margin-bottom: 3px; letter-spacing: -.2px; }
+  .pricebox__price { font-size: clamp(27px, 8.4vw, 33px); font-weight: 800; color: var(--price); letter-spacing: -1.2px; line-height: 1.06; white-space: nowrap; }
+  .pricebox__price span { font-size: 15px; font-weight: 800; margin-left: 2px; letter-spacing: -.4px; }
+  .pricebox__right { flex: none; text-align: right; }
+  .pill {
+    display: inline-block; background: #e8402f; color: #fff;
+    font-size: 12px; font-weight: 800; letter-spacing: -.3px;
+    padding: 6px 10px; border-radius: 8px; white-space: nowrap;
+  }
+  .pricebox__sub { margin-top: 6px; font-size: 11.5px; color: #7d6450; white-space: nowrap; }
+  .pricebox__sub--muted { color: #a08a76; margin-top: 1px; font-size: 10.5px; }
+
+  .sumgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 20px; }
+  .sum { background: #f6f8fb; border: 1px solid #e9edf3; border-radius: 12px; padding: 10px 7px; text-align: center; min-width: 0; }
+  .sum__k { display: block; font-size: 10.5px; color: #7c8794; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sum__v { font-size: 14px; font-weight: 800; letter-spacing: -.5px; white-space: nowrap; }
+  .sum__v--none { color: #b3bcc6; }
+
+  .sect { margin-bottom: 6px; }
+  .sect__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .sect__t { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.4px; }
+  .sect__s { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .chartbox { position: relative; height: 214px; margin: 0 -2px; touch-action: pan-y; }
+  .chartbox canvas { display: block; }
+  .chartbox.is-fb { height: auto; margin: 6px 0 0; }
+  .note { margin: 8px 0 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* css fallback chart */
+  .fb { padding: 2px 0; }
+  .fb__row { display: flex; align-items: center; gap: 8px; margin: 7px 0; font-size: 11px; }
+  .fb__l { flex: 0 0 34%; color: #5b6673; }
+  .fb__track { flex: 1 1 auto; height: 9px; background: #eef1f6; border-radius: 5px; overflow: hidden; }
+  .fb__track i { display: block; height: 100%; background: #93a1b5; border-radius: 5px; }
+  .fb__v { flex: none; font-weight: 800; color: #333d4a; }
+
+  .why { background: #f3f5f8; border-radius: 14px; padding: 14px 15px 13px; margin: 18px 0 0; }
+  .why h3 { margin: 0 0 7px; font-size: 14px; font-weight: 800; letter-spacing: -.3px; }
+  .why ul { margin: 0; padding-left: 15px; }
+  .why li { font-size: 12.5px; color: var(--ink2); line-height: 1.6; margin: 3px 0; word-break: keep-all; }
+
+  .cta { margin-top: 18px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; min-height: 55px; padding: 0 16px;
+    border: 0; border-radius: 14px;
+    background: linear-gradient(180deg, #17c15c, #0ea94e);
+    color: #fff; font-size: 16.5px; font-weight: 800; letter-spacing: -.4px;
+    text-decoration: none; text-align: center;
+    box-shadow: 0 8px 18px rgba(14, 169, 78, .22);
+    font-family: inherit; cursor: pointer;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn--off { background: #e8ebf0; color: #97a1ad; box-shadow: none; cursor: default; }
+  .btn--off:active { transform: none; }
+  .btn__tag { font-size: 10.5px; font-weight: 800; background: #d7dce3; color: #6f7a87; padding: 3px 7px; border-radius: 6px; letter-spacing: -.2px; }
+  .pending { margin: 10px 0 0; font-size: 11.5px; color: #7c8794; text-align: center; line-height: 1.55; word-break: keep-all; }
+  .disc { margin: 14px 0 0; font-size: 10.5px; color: #a3adb9; text-align: center; line-height: 1.55; }
+
+  .meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 10.5px; color: #a3adb9; }
+  .meta a { color: #8b95a1; text-decoration: none; font-weight: 700; white-space: nowrap; }
+
+  .notice {
+    margin: 0 0 14px; padding: 10px 12px; border-radius: 10px;
+    background: #fff8e6; border: 1px solid #f6e2b0; color: #7a5a15;
+    font-size: 12px; line-height: 1.5;
+  }
+
+  /* states */
+  .state { text-align: center; padding: 60px 14px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .state b { display: block; margin-bottom: 7px; color: var(--ink); font-size: 15.5px; font-weight: 800; letter-spacing: -.3px; }
+  .state p { margin: 0; }
+  .state__err { margin-top: 12px !important; font-size: 10.5px; color: #b9c1cb; word-break: break-all; }
+  .retry {
+    margin-top: 16px; padding: 10px 20px; border: 0; border-radius: 10px;
+    background: #eef2f7; color: #4e5968; font-size: 13px; font-weight: 800;
+    font-family: inherit; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<main id="app" class="app">
+  <div class="state"><b>시세를 불러오는 중…</b>잠시만 기다려 주세요.</div>
+</main>
+<noscript>
+  <div class="state"><b>자바스크립트가 꺼져 있어요</b>브라우저 설정에서 자바스크립트를 켜면 시세를 볼 수 있습니다.</div>
+</noscript>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" onerror="window.__chartLoadFailed = true;"></script>
+<script>
+(function () {
+  'use strict';
+
+  var DISCLOSURE = '※ 이 링크를 통해 구매 시 일정액의 수수료를 제공받을 수 있습니다.';
+  var FONT = '-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif';
+
+  var app = document.getElementById('app');
+  var state = { data: null, chart: null };
+
+  /* ---------- helpers ---------- */
+
+  function comma(n) {
+    var s = String(Math.round(Number(n)));
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function won(n) {
+    if (n === null || n === undefined || n === '') return '—';
+    var num = Number(n);
+    if (!isFinite(num)) return '—';
+    return comma(num) + '원';
+  }
+
+  function esc(v) {
+    return String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
+  function dots(date) { return String(date || '').replace(/-/g, '.'); }
+  function shortDate(date) { var s = String(date || ''); return s.length >= 10 ? s.slice(5).replace('-', '.') : s; }
+
+  function site() { return (state.data && state.data.site) || {}; }
+  function siteTitle() { return site().title || '실시간 핫딜 시세'; }
+
+  function findByParam(id) {
+    var list = (state.data && state.data.deals) || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) return list[i];
+    }
+    return null;
+  }
+
+  function destroyChart() {
+    if (state.chart) {
+      try { state.chart.destroy(); } catch (e) { /* noop */ }
+      state.chart = null;
+    }
+  }
+
+  /* ---------- list ---------- */
+
+  function renderList(notice) {
+    destroyChart();
+    var deals = (state.data && state.data.deals) || [];
+    var latest = deals.reduce(function (acc, d) {
+      var u = d.updated_at || '';
+      return u > acc ? u : acc;
+    }, '');
+
+    var html = '';
+    html += '<header class="top">';
+    html += '<div class="top__row"><h1 class="top__title">' + esc(siteTitle()) + '</h1></div>';
+    html += '<p class="top__sub">' + (latest ? dots(latest) + ' 기준 · ' : '') + '오늘의 핫딜 <b>' + deals.length + '</b>건</p>';
+    html += '</header>';
+
+    if (notice) html += '<p class="notice">' + esc(notice) + '</p>';
+
+    if (!deals.length) {
+      html += '<div class="state"><b>아직 등록된 딜이 없어요</b>오늘의 핫딜을 찾는 대로 이곳에 올라옵니다.</div>';
+    } else {
+      html += '<ul class="list">';
+      deals.forEach(function (deal) {
+        var price = Number(deal.effective_price);
+        html += '<li><a class="card" href="?id=' + encodeURIComponent(deal.id) + '" data-deal="' + esc(deal.id) + '">';
+        html += '<div class="card__top">';
+        if (deal.brand) html += '<span class="chip chip--brand">' + esc(deal.brand) + '</span>';
+        if (deal.shipping) html += '<span class="chip chip--ship">' + esc(deal.shipping) + '</span>';
+        if (deal.badge) html += '<span class="badge">' + esc(deal.badge) + '</span>';
+        html += '</div>';
+        html += '<p class="card__title">' + esc(deal.title) + '</p>';
+        html += '<div class="card__row">';
+        html += '<span class="card__price">' + (isFinite(price) ? comma(price) : '—') + '<span>원</span></span>';
+        if (deal.discount_vs_avg_pct !== null && deal.discount_vs_avg_pct !== undefined) {
+          html += '<span class="card__off">30일 평균 대비 -' + esc(deal.discount_vs_avg_pct) + '%</span>';
+        } else if (deal.danawa_low !== null && deal.danawa_low !== undefined) {
+          html += '<span class="card__off card__off--muted">타사 최저 ' + won(deal.danawa_low) + '</span>';
+        }
+        html += '</div>';
+        html += '<div class="card__foot"><span>' + esc(deal.effective_label || '') + '</span><span class="card__go">시세 보기 →</span></div>';
+        html += '</a></li>';
+      });
+      html += '</ul>';
+    }
+
+    html += '<p class="disc">' + esc(site().disclosure || DISCLOSURE) + '</p>';
+
+    app.innerHTML = html;
+    document.title = siteTitle();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- detail ---------- */
+
+  function renderDetail(deal) {
+    destroyChart();
+
+    var pts = (deal.comparison_points || []).filter(function (p) { return p && isFinite(Number(p.price)); });
+    var hist = (deal.history || []).filter(function (h) { return h && isFinite(Number(h.price)); })
+      .slice().sort(function (a, b) { return String(a.date) < String(b.date) ? -1 : (String(a.date) > String(b.date) ? 1 : 0); });
+    var lineMode = hist.length >= 2;
+
+    var html = '';
+    html += '<header class="top">';
+    html += '<div class="top__row">';
+    html += '<a class="back" href="./" data-back aria-label="목록으로">'
+      + '<svg viewBox="0 0 10 18" width="9" height="16" aria-hidden="true"><path d="M8.5 1.5 2 9l6.5 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      + '</a>';
+    html += '<h1 class="top__title">' + esc(siteTitle()) + '</h1>';
+    if (deal.badge) html += '<span class="badge">' + esc(deal.badge) + '</span>';
+    html += '</div></header>';
+
+    if (deal.brand || deal.shipping) {
+      html += '<div class="chips">';
+      if (deal.brand) html += '<span class="chip chip--brand">' + esc(deal.brand) + '</span>';
+      if (deal.shipping) html += '<span class="chip chip--ship">' + esc(deal.shipping) + '</span>';
+      html += '</div>';
+    }
+
+    html += '<h2 class="pname">' + esc(deal.title) + '</h2>';
+
+    /* price box */
+    html += '<div class="pricebox">';
+    html += '<div class="pricebox__left">';
+    html += '<div class="pricebox__label">' + esc(deal.effective_label || '오늘 체감가') + '</div>';
+    html += '<div class="pricebox__price">' + comma(deal.effective_price) + '<span>원</span></div>';
+    html += '</div>';
+    html += '<div class="pricebox__right">';
+    if (deal.discount_vs_avg_pct !== null && deal.discount_vs_avg_pct !== undefined) {
+      html += '<span class="pill">평균 대비 -' + esc(deal.discount_vs_avg_pct) + '%</span>';
+    } else if (deal.danawa_low && Number(deal.danawa_low) > Number(deal.effective_price)) {
+      var vsOther = Math.round((1 - Number(deal.effective_price) / Number(deal.danawa_low)) * 100);
+      if (vsOther > 0) html += '<span class="pill">타사 최저 대비 -' + vsOther + '%</span>';
+    }
+    var maxP = (deal.max_discount_price === null || deal.max_discount_price === undefined) ? null : Number(deal.max_discount_price);
+    if (maxP !== null && maxP > Number(deal.effective_price)) {
+      html += '<div class="pricebox__sub">최대할인가 ' + won(maxP) + '</div>';
+    }
+    if (deal.reward_note) {
+      html += '<div class="pricebox__sub pricebox__sub--muted">(' + esc(deal.reward_note) + ')</div>';
+    }
+    html += '</div></div>';
+
+    /* three summary cards */
+    var sums = [
+      { k: '30일 평균', v: deal.avg_30d },
+      { k: '공식 역대최저', v: deal.official_low },
+      { k: '타사 단품최저', v: deal.danawa_low }
+    ];
+    html += '<div class="sumgrid">';
+    sums.forEach(function (s) {
+      var empty = (s.v === null || s.v === undefined || s.v === '');
+      html += '<div class="sum"><span class="sum__k">' + s.k + '</span>'
+        + '<span class="sum__v' + (empty ? ' sum__v--none' : '') + '">' + won(s.v) + '</span></div>';
+    });
+    html += '</div>';
+
+    /* chart */
+    var chartable = lineMode ? hist.length : pts.length;
+    if (chartable) {
+      html += '<section class="sect">';
+      html += '<div class="sect__head"><h3 class="sect__t">' + (lineMode ? '일별 최저가 추이' : '가격 비교 · 시세 추이') + '</h3>'
+        + '<span class="sect__s">' + dots(deal.updated_at) + ' 기준</span></div>';
+      html += '<div class="chartbox"><canvas id="priceChart" role="img" aria-label="가격 비교 그래프"></canvas></div>';
+      html += '<p class="note">' + (lineMode
+        ? '그래프를 터치하거나 마우스를 올리면 날짜별 가격이 보여요.'
+        : '막대를 터치하면 정확한 가격이 보여요. 시세 이력이 쌓이면 일별 추이 그래프로 바뀝니다.') + '</p>';
+      html += '</section>';
+    }
+
+    /* reasons */
+    if (deal.reasons && deal.reasons.length) {
+      html += '<section class="why"><h3>왜 지금 사도 될까?</h3><ul>';
+      deal.reasons.forEach(function (r) { html += '<li>' + esc(r) + '</li>'; });
+      html += '</ul></section>';
+    }
+
+    /* cta */
+    var rawUrl = String(deal.affiliate_url || '').trim();
+    var buyUrl = /^https?:\/\//i.test(rawUrl) ? rawUrl : '';
+    html += '<div class="cta">';
+    if (buyUrl) {
+      html += '<a class="btn" href="' + esc(buyUrl) + '" target="_blank" rel="noopener sponsored">최저가 구매하기 →</a>';
+      if (deal.affiliate_label) {
+        html += '<p class="pending">' + esc(deal.affiliate_label) + ' 링크로 이동합니다.</p>';
+      }
+    } else {
+      html += '<button class="btn btn--off" type="button" disabled>최저가 구매하기 →<span class="btn__tag">준비 중</span></button>';
+      html += '<p class="pending">' + esc(site().pending_note || '구매 링크를 준비하고 있어요. 준비되는 대로 이 자리에서 바로 구매하실 수 있습니다.') + '</p>';
+    }
+    html += '<p class="disc">' + esc(site().disclosure || DISCLOSURE) + '</p>';
+    html += '</div>';
+
+    /* meta */
+    html += '<div class="meta"><span>' + esc(deal.source_note || '') + '</span><a href="./" data-back>목록으로</a></div>';
+
+    app.innerHTML = html;
+    document.title = deal.title + ' · ' + siteTitle();
+    window.scrollTo(0, 0);
+
+    drawChart(deal, lineMode, pts, hist);
+  }
+
+  /* ---------- chart ---------- */
+
+  var baselinePlugin = {
+    id: 'baseline',
+    afterDatasetsDraw: function (chart, args, opts) {
+      var value = opts && opts.value;
+      if (value === null || value === undefined || !isFinite(Number(value))) return;
+      var y = chart.scales.y.getPixelForValue(Number(value));
+      var area = chart.chartArea;
+      if (!area || y < area.top - 1 || y > area.bottom + 1) return;
+      var g = chart.ctx;
+      g.save();
+      g.setLineDash([5, 4]);
+      g.lineWidth = 1;
+      g.strokeStyle = '#aeb8c4';
+      g.beginPath();
+      g.moveTo(area.left, y);
+      g.lineTo(area.right, y);
+      g.stroke();
+      g.restore();
+    }
+  };
+
+  var valueLabelPlugin = {
+    id: 'valueLabels',
+    afterDatasetsDraw: function (chart, args, opts) {
+      if (!opts || !opts.display) return;
+      var meta = chart.getDatasetMeta(0);
+      var data = chart.data.datasets[0].data;
+      var type = chart.config.type;
+      var g = chart.ctx;
+      g.save();
+      g.font = '700 10px ' + FONT;
+      g.textAlign = 'center';
+      g.textBaseline = 'bottom';
+      meta.data.forEach(function (el, i) {
+        var v = data[i];
+        if (v === null || v === undefined) return;
+        g.fillStyle = (opts.colors && opts.colors[i]) ? opts.colors[i] : '#4b5563';
+        var label = won(v);
+        if (type === 'bar') {
+          g.fillText(label, el.x, el.y - 5);
+        } else {
+          g.fillText(label, el.x, el.y - 10);
+        }
+      });
+      g.restore();
+    }
+  };
+
+  function barColor(label) {
+    var l = String(label || '');
+    if (/체감|최종/.test(l)) return '#f2545b';
+    if (/오늘|특가|한정/.test(l)) return '#f79f3c';
+    if (/평균/.test(l)) return '#95a3b7';
+    return '#55637a';
+  }
+
+  function axisMoney(v) {
+    if (v >= 10000) return Math.round(v / 1000) + '천';
+    return Number(v).toLocaleString('ko-KR');
+  }
+
+  function yScale(vals) {
+    var min = Math.min.apply(null, vals);
+    var max = Math.max.apply(null, vals);
+    var pad = Math.max((max - min) * 0.22, max * 0.03);
+    return {
+      suggestedMin: Math.max(0, Math.floor((min - pad) / 1000) * 1000),
+      suggestedMax: Math.ceil((max + pad) / 1000) * 1000,
+      grid: { color: '#eef1f6', drawTicks: false },
+      border: { display: false },
+      ticks: {
+        color: '#9aa4b0', font: { size: 10, family: FONT }, maxTicksLimit: 5, padding: 7,
+        callback: function (v) { return axisMoney(v); }
+      }
+    };
+  }
+
+  function drawChart(deal, lineMode, pts, hist) {
+    var canvas = document.getElementById('priceChart');
+    if (!canvas) return;
+
+    if (!window.Chart || window.__chartLoadFailed) {
+      cssChart(canvas, lineMode, pts, hist);
+      return;
+    }
+
+    var C = window.Chart;
+    var labels, values, colors, baseline = null;
+
+    if (lineMode) {
+      labels = hist.map(function (h) { return shortDate(h.date); });
+      values = hist.map(function (h) { return Number(h.price); });
+      baseline = (deal.avg_30d !== null && deal.avg_30d !== undefined) ? Number(deal.avg_30d) : null;
+    } else {
+      labels = pts.map(function (p) { return String(p.label); });
+      values = pts.map(function (p) { return Number(p.price); });
+      colors = pts.map(function (p) { return barColor(p.label); });
+      baseline = (deal.avg_30d !== null && deal.avg_30d !== undefined) ? Number(deal.avg_30d) : null;
+    }
+
+    var scaleVals = values.slice();
+    var maxVal = Math.max.apply(null, values);
+    if (baseline !== null && isFinite(baseline)) {
+      if (baseline <= maxVal * 1.15) scaleVals.push(baseline);
+      else baseline = null;
+    }
+
+    var tooltip = {
+      enabled: true,
+      backgroundColor: 'rgba(23, 26, 32, .94)',
+      titleColor: '#ffffff',
+      titleFont: { size: 11, weight: '700', family: FONT },
+      titleMarginBottom: 3,
+      bodyColor: '#ffffff',
+      bodyFont: { size: 13, weight: '800', family: FONT },
+      padding: { top: 8, right: 11, bottom: 8, left: 11 },
+      cornerRadius: 9,
+      caretSize: 6,
+      caretPadding: 6,
+      displayColors: false,
+      callbacks: {
+        title: function (items) {
+          if (!items || !items.length) return '';
+          var i = items[0].dataIndex;
+          if (lineMode) return (hist[i] ? dots(hist[i].date) : '');
+          return (pts[i] ? String(pts[i].label) : '');
+        },
+        label: function (item) { return won(item.parsed.y); }
+      }
+    };
+
+    var config;
+
+    if (lineMode) {
+      var ctx = canvas.getContext('2d');
+      var grad = ctx.createLinearGradient(0, 0, 0, 210);
+      grad.addColorStop(0, 'rgba(242, 84, 91, .20)');
+      grad.addColorStop(1, 'rgba(242, 84, 91, 0)');
+
+      config = {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            borderColor: '#f2545b',
+            borderWidth: 2.6,
+            backgroundColor: grad,
+            fill: true,
+            tension: 0.34,
+            pointRadius: 4.5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#f2545b',
+            pointBorderWidth: 2.2,
+            pointHitRadius: 22
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 420 },
+          layout: { padding: { top: 26, right: 12, left: 2, bottom: 0 } },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: {
+              grid: { display: false },
+              border: { display: false },
+              ticks: {
+                color: '#65707d', font: { size: 10.5, family: FONT }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6, padding: 6
+              }
+            },
+            y: yScale(scaleVals)
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: tooltip,
+            valueLabels: { display: hist.length <= 7, colors: null },
+            baseline: { value: baseline }
+          }
+        },
+        plugins: [baselinePlugin, valueLabelPlugin]
+      };
+    } else {
+      config = {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors,
+            hoverBackgroundColor: colors,
+            borderRadius: 5,
+            borderSkipped: false,
+            barPercentage: 0.62,
+            categoryPercentage: 0.82,
+            maxBarThickness: 46
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 420 },
+          layout: { padding: { top: 24, right: 8, left: 2, bottom: 0 } },
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: {
+              grid: { display: false },
+              border: { display: false },
+              ticks: {
+                color: '#65707d', font: { size: 9.8, family: FONT },
+                autoSkip: false, maxRotation: 0, minRotation: 0, padding: 6,
+                callback: function (value, index) {
+                  var label = pts[index] ? String(pts[index].label) : String(value);
+                  return label.replace(/\s*\(/, '\n(');
+                }
+              }
+            },
+            y: yScale(scaleVals)
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: tooltip,
+            valueLabels: { display: true, colors: colors },
+            baseline: { value: baseline }
+          }
+        },
+        plugins: [baselinePlugin, valueLabelPlugin]
+      };
+    }
+
+    try {
+      state.chart = new C(canvas, config);
+    } catch (e) {
+      cssChart(canvas, lineMode, pts, hist);
+    }
+  }
+
+  /* chart 없는 환경(오프라인 등)을 위한 간단 막대 대체 화면 */
+  function cssChart(canvas, lineMode, pts, hist) {
+    var box = canvas.parentNode;
+    if (!box) return;
+    var items = lineMode
+      ? hist.map(function (h) { return { label: dots(h.date), price: Number(h.price) }; })
+      : pts.map(function (p) { return { label: String(p.label), price: Number(p.price) }; });
+    var max = items.reduce(function (m, it) { return Math.max(m, it.price); }, 0);
+
+    var html = '<div class="fb">';
+    items.forEach(function (it) {
+      var w = max ? Math.max(8, Math.round(it.price / max * 100)) : 0;
+      html += '<div class="fb__row"><span class="fb__l">' + esc(it.label) + '</span>'
+        + '<div class="fb__track"><i style="width:' + w + '%"></i></div>'
+        + '<span class="fb__v">' + won(it.price) + '</span></div>';
+    });
+    html += '</div>';
+
+    box.classList.add('is-fb');
+    box.innerHTML = html;
+  }
+
+  /* ---------- routing ---------- */
+
+  function currentId() {
+    try {
+      return new URLSearchParams(window.location.search).get('id');
+    } catch (e) {
+      var m = /[?&]id=([^&]+)/.exec(window.location.search);
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+  }
+
+  function render() {
+    if (!state.data) return;
+    var id = currentId();
+    if (id) {
+      var deal = findByParam(id);
+      if (deal) { renderDetail(deal); return; }
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+      renderList('요청하신 딜을 찾지 못했어요. 지금 올라와 있는 핫딜 목록을 보여드릴게요.');
+      return;
+    }
+    renderList('');
+  }
+
+  function go(path, id) {
+    var url = id ? (path + '?id=' + encodeURIComponent(id)) : path;
+    try {
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ id: id || null }, '', url);
+        render();
+        return;
+      }
+    } catch (e) { /* pushState를 못 쓰는 환경이면 페이지 이동으로 처리 */ }
+    window.location.href = url || './';
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+
+    var card = t.closest('[data-deal]');
+    if (card) {
+      e.preventDefault();
+      go(window.location.pathname, card.getAttribute('data-deal'));
+      return;
+    }
+
+    var back = t.closest('[data-back]');
+    if (back) {
+      e.preventDefault();
+      go(window.location.pathname, null);
+    }
+  });
+
+  window.addEventListener('popstate', render);
+
+  /* ---------- boot ---------- */
+
+  function renderError(err) {
+    var fileHint = window.location.protocol === 'file:';
+    app.innerHTML = '<div class="state"><b>시세 데이터를 불러오지 못했어요</b>'
+      + esc(fileHint
+        ? '파일을 직접 열었다면 웹 주소(GitHub Pages 등)로 열어 주세요. 데이터 파일은 서버를 통해서만 읽을 수 있어요.'
+        : '잠시 후 다시 시도해 주세요.')
+      + '<div><button class="retry" type="button" id="retry">다시 시도</button></div>'
+      + '<p class="state__err">' + esc(err && err.message ? err.message : String(err)) + '</p></div>';
+    var btn = document.getElementById('retry');
+    if (btn) btn.addEventListener('click', load);
+  }
+
+  function load() {
+    app.innerHTML = '<div class="state"><b>시세를 불러오는 중…</b>잠시만 기다려 주세요.</div>';
+    fetch('./deals.json', { cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('deals.json HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        state.data = data;
+        render();
+      })
+      .catch(renderError);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else {
+    load();
+  }
+})();
+</script>
+</body>
+</html>

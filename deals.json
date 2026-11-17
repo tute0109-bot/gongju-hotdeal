@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-17T22:45:00+09:00",
+  "site": {
+    "title": "공주시 정보 · 실시간 핫딜 시세",
+    "tagline": "당근 카페 「공주시 정보」 온라인핫딜",
+    "disclosure": "이 포스팅은 네이버 쇼핑 커넥트 활동의 일환으로, 판매 발생 시 수수료를 제공받습니다.",
+    "pending_note": "구매 링크를 준비하고 있어요. 준비되는 대로 이 자리에서 바로 구매하실 수 있습니다."
+  },
+  "deals": [
+    {
+      "id": "orthomol-immun-30-vitalm7",
+      "title": "[슈퍼적립] 멀티비타민 오쏘몰 이뮨 30일분 + 바이탈M 7일분 증정 + 쇼핑백",
+      "brand": "동아제약 공식",
+      "badge": "딜 지수 87점",
+      "shipping": "무료배송",
+      "effective_price": 72760,
+      "effective_label": "멤버십 적립 시 체감가",
+      "max_discount_price": 85600,
+      "reward_note": "적립 최대 12,840원",
+      "avg_30d": 94900,
+      "official_low": 83000,
+      "danawa_low": 76850,
+      "discount_vs_avg_pct": 23,
+      "updated_at": "2026-11-17",
+      "source_note": "공식몰·다나와 시세 대조 (2026.11.17 확인)",
+      "affiliate_url": "https://naver.me/GahEVOuY",
+      "reasons": [
+        "공식몰 30일 평균(94,900원) 대비 체감 약 23% 저렴",
+        "다나와 단품 최저(76,850원)보다 싸고 바이탈M 7일분 증정"
+      ],
+      "comparison_points": [
+        {
+          "label": "30일 평균(공식몰)",
+          "price": 94900
+        },
+        {
+          "label": "기존 최저(공식몰)",
+          "price": 83000
+        },
+        {
+          "label": "다나와 최저(병행 단품)",
+          "price": 76850
+        },
+        {
+          "label": "오늘 특가(최대할인)",
+          "price": 85600
+        },
+        {
+          "label": "오늘 체감가(적립 포함)",
+          "price": 72760
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-11-17",
+          "price": 72760
+        }
+      ],
+      "affiliate_label": "네이버 브랜드 커넥트"
+    },
+    {
+      "id": "dyson-supersonic-neural-pink-stand",
+      "title": "(라이브한정) 다이슨 슈퍼소닉 뉴럴(세라믹 핑크)+스탠드, 45mm 라운드브러시 증정",
+      "brand": "다이슨",
+      "badge": "딜 지수 87점",
+      "shipping": "",
+      "effective_price": 417660,
+      "effective_label": "라이브 한정가",
+      "max_discount_price": 417660,
+      "reward_note": "",
+      "avg_30d": null,
+      "official_low": null,
+      "danawa_low": 442160,
+      "discount_vs_avg_pct": null,
+      "updated_at": "2026-11-17",
+      "source_note": "다나와·에누리 시세 대조 (2026.11.17 확인)",
+      "affiliate_url": "",
+      "reasons": [
+        "다나와 단품 최저(442,160원)보다 24,500원 저렴",
+        "라이브 한정 구성: 스탠드 + 45mm 라운드브러시 증정"
+      ],
+      "comparison_points": [
+        {
+          "label": "다나와 최저(병행 단품)",
+          "price": 442160
+        },
+        {
+          "label": "에누리 카드최저",
+          "price": 439100
+        },
+        {
+          "label": "오늘 특가(라이브 한정)",
+          "price": 417660
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-11-17",
+          "price": 417660
+        }
+      ]
+    }
+  ]
+}
